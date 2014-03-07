@@ -1,0 +1,79 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    font-family: Helvetica, sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+}
+
+canvas {
+    z-index: -1;
+    background-color: transparent;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.header {
+    font-size: 4em;
+    text-align: center;
+    font-weight: 200;
+}
+
+.recording-controls {
+    margin: 20px;
+    width: 100%;
+    position: relative;
+}
+
+.record-button {
+    position: absolute;
+    left: 40%;
+    width: 200px;
+    height: 200px;
+    background-color: rgb(240, 60, 80);
+    border-radius: 100px;
+    border: 3px solid transparent;
+    cursor: pointer;
+}
+    .record-button:hover, .record-button:focus {
+        border: 3px solid rgb(40, 160, 160);
+    }
+
+.record-button.recording {
+    cursor: none;
+    border: 3px solid rgb(255, 215, 0);
+}
+
+.recording-progress-dot {
+    background-color: rgb(50, 130, 240);
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    position: absolute;
+    top: 220px;
+    display: none;
+}
+    .recording-progress-dot.recording {
+        display: block;
+    }
+
+.recording-line {
+    background-color: rgb(200, 200, 230);
+    width: 320px;
+    height: 3px;
+    position: absolute;
+    top: 245px;
+    display: none;
+}
+    .recording-line.recording {
+        display: block;
+    }
+    

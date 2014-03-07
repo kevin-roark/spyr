@@ -1,0 +1,20 @@
+{
+  "name": "spyr-web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "hear everyone's special sounds",
+  "dependencies": {
+    "express": "3.4.8",
+    "debug": "0.7.4",
+    "redis": "0.10.1",
+    "mustache-express": "1.0.1",
+    "socket.io-client": "LearnBoost/socket.io-client#ee5291"
+  },
+  "devDependencies": {
+    "browserify": "3.31.2",
+    "browserify-middleware": "2.3.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
