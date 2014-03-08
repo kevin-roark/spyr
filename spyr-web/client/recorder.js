@@ -4,6 +4,8 @@
 var AudioContext = webkitAudioContext || window.webkitAudioContext;
 var audioContext = new AudioContext();
 
+exports.audioContext = audioContext;
+
 var recorder;
 
 if (!navigator.getUserMedia) {

@@ -52,13 +52,13 @@ function stopRecording() {
   $('.record-button').removeClass('recording');
   recorder.stop();
   recorder.getBuffer(function(bufs) {
-    console.log('got audio bufs');
     var left = bufs[0];
     var right = bufs[1];
     var buf1 = left.buffer;
     var buf2 = right.buffer;
-    console.log(buf1);
-    console.log(buf2);
+
+    /* for now lets play these things */
+    playBuffers([buf1, buf2]);
   });
 }
 
@@ -86,4 +86,22 @@ function startVisualization() {
 function stopVisualization() {
   $('.recording-progress-dot').removeClass('recording');
   $('.recording-line').removeClass('recording');
+}
+
+/* bufs[0] == left channel, bufs[1] == right as raw array buffers */
+function playBuffers(bufs) {
+  var ctx = Recorder.audioContext;
+
+  // convert buffers to float 32 here
+  var left = new Float32Array(bufs[0]);
+  var right = new Float32Array(bufs[1]);
+
+  var source = ctx.createBufferSource();
+  var combinedBuf = ctx.createBuffer(2, left.length, ctx.sampleRate);
+  combinedBuf.getChannelData(0).set(left);
+  combinedBuf.getChannelData(1).set(right);
+
+  source.buffer = combinedBuf;
+  source.connect(ctx.destination);
+  source.start(0);
 }
