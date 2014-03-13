@@ -17,6 +17,8 @@ function resize() {
 $(window).resize(resize);
 resize();
 
+var bufs1;
+
 /* events, etc */
 
 $('.record-button').click(function() {
@@ -57,8 +59,29 @@ function stopRecording() {
     var buf1 = left.buffer;
     var buf2 = right.buffer;
 
-    /* for now lets play these things */
-    playBuffers([buf1, buf2]);
+    if (bufs1) {
+      var l1 = new Float32Array(bufs1[0]);
+      var r1 = new Float32Array(bufs1[1]);
+      var l2 = new Float32Array(buf1);
+      var r2 = new Float32Array(buf2);
+
+      var lcom = new Float32Array(l1.length);
+      var rcom = new Float32Array(r1.length);
+
+      for (var i=0; lcom.length; i++) {
+        lcom[i] = l1[i] + l2[i];
+        rcom[i] = r1[i] + r2[i];
+      }
+
+      /* for now lets play these things */
+      playBuffers([lcom, rcom]);
+
+      /* nullify bufs1 */
+      bufs1 = null;
+    }
+    else {
+      bufs1 = [buf1, buf2];
+    }
   });
 }
 
