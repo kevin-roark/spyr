@@ -2,6 +2,7 @@
 /* dependencies */
 var Recorder = require('./recorder');
 var sparkle = require('./sparkle');
+var kutility = require('kutility');
 
 /* constants */
 var RECORD_TIME = 1000;
@@ -56,33 +57,54 @@ function stopRecording() {
   recorder.getBuffer(function(bufs) {
     var left = bufs[0];
     var right = bufs[1];
-    var buf1 = left.buffer;
-    var buf2 = right.buffer;
+    var audBuf = {l: left.buffer, r: right.buffer};
 
     if (bufs1) {
-      var l1 = new Float32Array(bufs1[0]);
-      var r1 = new Float32Array(bufs1[1]);
-      var l2 = new Float32Array(buf1);
-      var r2 = new Float32Array(buf2);
-
-      var lcom = new Float32Array(l1.length);
-      var rcom = new Float32Array(r1.length);
-
-      for (var i=0; lcom.length; i++) {
-        lcom[i] = l1[i] + l2[i];
-        rcom[i] = r1[i] + r2[i];
-      }
+      var com = combineBuffers([bufs1, audBuf]);
 
       /* for now lets play these things */
-      playBuffers([lcom, rcom]);
+      playBuffers(com);
 
       /* nullify bufs1 */
       bufs1 = null;
     }
     else {
-      bufs1 = [buf1, buf2];
+      bufs1 = audBuf;
     }
   });
+}
+
+/* takes a list of {l, r} PCM arraybuffers and makes a single arraybuffer with
+   all the audio combined !! */
+function combineBuffers(allBufs) {
+  if (!allBufs || !allBufs.length)
+    return null;
+
+  // convert from arraybuffer to float32array
+  for (var j = 0; j < allBufs.length; j++) {
+    allBufs[j].l = new Float32Array(allBufs[j].l);
+    allBufs[j].r = new Float32Array(allBufs[j].r);
+  }
+
+  var b = allBufs[0];
+  var l = b.l;
+
+  var lcom = new Float32Array(allBufs[0].l.length);
+  var rcom = new Float32Array(allBufs[0].r.length);
+
+  // combine all the datas
+  var buf;
+  for (var i = 0; i < lcom.length; i++) {
+    for (var j = 0; j < allBufs.length; j++) {
+      buf = allBufs[j];
+      if (buf.l.length > j) {
+        lcom[i] += buf.l[i];
+        rcom[i] += buf.r[i];
+      }
+    }
+  }
+
+  return {l: lcom.buffer, r: rcom.buffer, n: allBufs.length};
 }
 
 function startVisualization() {
@@ -111,13 +133,13 @@ function stopVisualization() {
   $('.recording-line').removeClass('recording');
 }
 
-/* bufs[0] == left channel, bufs[1] == right as raw array buffers */
-function playBuffers(bufs) {
+/* buf.l == left channel PCM, buf.r ==  right channel PCM (arraybuffers) */
+function playBuffers(buf) {
   var ctx = Recorder.audioContext;
 
   // convert buffers to float 32 here
-  var left = new Float32Array(bufs[0]);
-  var right = new Float32Array(bufs[1]);
+  var left = new Float32Array(buf.l);
+  var right = new Float32Array(buf.r);
 
   var source = ctx.createBufferSource();
   var combinedBuf = ctx.createBuffer(2, left.length, ctx.sampleRate);
@@ -127,4 +149,55 @@ function playBuffers(bufs) {
   source.buffer = combinedBuf;
   source.connect(ctx.destination);
   source.start(0);
+
+  addTriangles(buf.n);
+}
+
+var triangleStyles = [
+  ['border-left', 'border-right', 'border-bottom'],
+  ['border-left', 'border-right', 'border-top'],
+  ['border-top', 'border-bottom', 'border-left'],
+  ['border-top', 'border-bottom', 'border-right'],
+]
+
+/* adds triangles for the audio visualization section !! */
+function addTriangles(num) {
+  var $viz = $('.audio-visualizer');
+  var triangles = [];
+
+  function addTriangle() {
+    var t = $('<div>').addClass('audio-triangle');
+    var color = kutility.randColor();
+    var size = Math.floor(Math.random() * 80) + 20;
+
+    var style = kutility.choice(triangleStyles);
+    for (var i = 0; i < style.length - 1; i++) {
+      t.css(style[i], size + 'px solid transparent');
+    }
+    t.css(style[style.length - 1], size + 'px solid ' + color);
+
+    var left = Math.floor(Math.random() * ($(window).width() - 120)) + 20;
+    var top = Math.floor(Math.random() * ($viz.height() - 120)) + 20;
+    t.css('left', left + 'px');
+    t.css('top', top + 'px');
+
+    $viz.append(t);
+    triangles.push(t);
+  }
+
+  for (var n = 0; n < num; n++) {
+    setTimeout(function() {
+      addTriangle();
+    }, n * 75);
+  }
+
+  setTimeout(function() {
+    var ti = 0;
+    var remover = setInterval(function() {
+      triangles[ti].remove();
+      ti++;
+      if (ti >= triangles.length)
+        clearInterval(remover);
+    }, 75);
+  }, RECORD_TIME);
 }

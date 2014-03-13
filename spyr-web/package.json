@@ -8,7 +8,8 @@
     "debug": "0.7.4",
     "redis": "0.10.1",
     "mustache-express": "1.0.1",
-    "socket.io-client": "LearnBoost/socket.io-client#ee5291"
+    "socket.io-client": "LearnBoost/socket.io-client#ee5291",
+    "kutility": "0.1.0"
   },
   "devDependencies": {
     "browserify": "3.31.2",
