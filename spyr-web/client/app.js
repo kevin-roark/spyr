@@ -86,9 +86,6 @@ function combineBuffers(allBufs) {
     allBufs[j].r = new Float32Array(allBufs[j].r);
   }
 
-  var b = allBufs[0];
-  var l = b.l;
-
   var lcom = new Float32Array(allBufs[0].l.length);
   var rcom = new Float32Array(allBufs[0].r.length);
 
