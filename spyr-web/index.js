@@ -5,18 +5,12 @@ var app = express();
 
 var port = process.env.SPYR_PORT || 3000;
 
-/*
 var redis = require('./redis')();
 
-process.title = 'weplay-web';
-*/
+process.title = 'spyr-web';
 
 app.listen(port);
 console.log('listening on *:' + port);
-
-if ('development' != process.env.NODE_ENV) {
-  app.use(express.basicAuth('a', 'b'));
-}
 
 app.engine('mustache', mustache());
 app.set('views', __dirname + '/views');
@@ -26,16 +20,20 @@ if ('development' == process.env.NODE_ENV) {
 }
 app.use(express.static(__dirname + '/public'));
 
-/*
-app.use(function(req, res, next) {
-  req.socket.on('error', function(err) {
+app.use(function(req, res, next){
+  req.socket.on('error', function(err){
     console.error(err.stack);
   });
   next();
 });
-*/
 
 var url = process.env.SPYR_IO_URL || 'http://localhost:3001';
-app.get('/', function(req, res, next) {
-  res.render('index.mustache', {});
+app.get('/', function(req, res, next){
+  redis.get('spyr:connections-total', function(err, count){
+    if (err) return next(err);
+    res.render('index.mustache', {
+      io: url,
+      connections: count
+    });
+  });
 });

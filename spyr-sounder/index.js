@@ -1,5 +1,6 @@
 
 var debug = require('debug');
+var msgpack = require('msgpack-js');
 
 process.title = 'spyr-sounder';
 
@@ -8,9 +9,9 @@ var redis = require('./redis')();
 var sub = require('./redis')();
 var io = require('socket.io-emitter')(redis);
 
-console.log('starting the sounder');
-
 var interval = process.env.SPYR_YELL_INTERVAL || 200;
+
+console.log('starting sounder. yell interval: ' + interval);
 
 var curBufs = [];
 
@@ -18,22 +19,24 @@ setInterval(function() {
   if (!curBufs.length)  
     return;
 
-  debug('blasting some yells');
   var combination = combineBuffers(curBufs);
+  console.log('blasting some yells');
   io.emit('takeyell', combination);
-  redis.set('spyr:takeyell', combination);
+  redis.set('spyr:takeyell', msgpack.encode(combination));
   curBufs = [];
 }, interval);
 
 
-sub.subscribe('spyr:makeyell');
+sub.subscribe('spyr:madeyell');
 sub.on('message', function(channel, bufs){
-  if ('spyr:makeyell' != channel) return;
-  takeyell(bufs); 
+  if ('spyr:madeyell' != channel) return;
+  takeyell(msgpack.decode(bufs)); 
 });
 
 /* an individual yell set of bufs */
-function takeYell(bufs) {
+function takeyell(bufs) {
+  console.log('got a yell');
+  console.log(bufs);
   curBufs.push(bufs);
 }
 

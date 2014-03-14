@@ -1,0 +1,16 @@
+{
+  "name": "spyr-presence",
+  "version": "0.1.0",
+  "description": "Aggregates the spyr people",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kevin Roark",
+  "license": "MIT",
+  "dependencies": {
+    "redis": "~0.10.1",
+    "socket.io-emitter": "~0.1.0"
+  }
+}

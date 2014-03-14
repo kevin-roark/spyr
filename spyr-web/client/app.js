@@ -3,9 +3,10 @@
 var Recorder = require('./recorder');
 var sparkle = require('./sparkle');
 var kutility = require('kutility');
+var io = require('socket.io-client');
 
 /* constants */
-var RECORD_TIME = 1000;
+var RECORD_TIME = 500;
 
 /* view stuff */
 function resize() {
@@ -18,9 +19,27 @@ function resize() {
 $(window).resize(resize);
 resize();
 
-var bufs1;
+/* get that socket chillin */
+var socket = io(config.io);
+socket.on('connect', function() {
+  console.log('connected... should make record button active');
+});
 
-/* events, etc */
+socket.on('disconnect', function() {
+  console.log('disconnected... should make record button inactive');
+});
+
+socket.on('takeyell', function(bufs) {
+  console.log('taking a yell!!!');
+  playBuffers(bufs);
+  //console.log(bufs);
+});
+
+socket.on('connections', function(total) {
+  //console.log('connection total: ' + total);
+});
+
+/* UI events, etc */
 
 $('.record-button').click(function() {
   if ($('.record-button').hasClass('recording'))
@@ -58,50 +77,13 @@ function stopRecording() {
     var left = bufs[0];
     var right = bufs[1];
     var audBuf = {l: left.buffer, r: right.buffer};
+    //var audBuf = {l: (new Float32Array()).buffer, r: (new Float32Array()).buffer};
 
-    if (bufs1) {
-      var com = combineBuffers([bufs1, audBuf]);
+    console.log('emitting yell');
+    console.log(audBuf);
 
-      /* for now lets play these things */
-      playBuffers(com);
-
-      /* nullify bufs1 */
-      bufs1 = null;
-    }
-    else {
-      bufs1 = audBuf;
-    }
+    socket.emit('madeyell', audBuf);
   });
-}
-
-/* takes a list of {l, r} PCM arraybuffers and makes a single arraybuffer with
-   all the audio combined !! */
-function combineBuffers(allBufs) {
-  if (!allBufs || !allBufs.length)
-    return null;
-
-  // convert from arraybuffer to float32array
-  for (var j = 0; j < allBufs.length; j++) {
-    allBufs[j].l = new Float32Array(allBufs[j].l);
-    allBufs[j].r = new Float32Array(allBufs[j].r);
-  }
-
-  var lcom = new Float32Array(allBufs[0].l.length);
-  var rcom = new Float32Array(allBufs[0].r.length);
-
-  // combine all the datas
-  var buf;
-  for (var i = 0; i < lcom.length; i++) {
-    for (var j = 0; j < allBufs.length; j++) {
-      buf = allBufs[j];
-      if (buf.l.length > j) {
-        lcom[i] += buf.l[i];
-        rcom[i] += buf.r[i];
-      }
-    }
-  }
-
-  return {l: lcom.buffer, r: rcom.buffer, n: allBufs.length};
 }
 
 function startVisualization() {

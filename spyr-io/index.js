@@ -1,6 +1,7 @@
 
 var sio = require('socket.io');
 var debug = require('debug');
+var msgpack = require('msgpack-js');
 
 process.title = 'spyr-io';
 
@@ -30,12 +31,16 @@ io.on('connection', function(socket){
 
   // publish yells to redis
   socket.on('madeyell', function(bufs){
-    redis.publish('spyr:madeyell', bufs);
+    console.log('got a yell from browser');
+    console.log(bufs);
+    redis.publish('spyr:madeyell', msgpack.encode(bufs));
   });
 
   // send yell across the world
-  socket.on('gotyell', function(bufs){
-    broadcast(socket, 'gotyell', bufs);
+  socket.on('takeyell', function(bufs){
+    console.log('taking a yell in spyr-io');
+    console.log(bufs);
+    broadcast(socket, 'takeyell', bufs);
   });
 
 });
