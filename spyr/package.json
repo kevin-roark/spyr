@@ -1,0 +1,22 @@
+{
+  "name": "spyr",
+  "version": "0.1.0",
+  "description": "A room where everyone can hear one another from across the world",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "realtime",
+    "socket.io",
+    "audio"
+  ],
+  "author": "Kevin Roark",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io": "1.0.0",
+    "debug": "0.7.4",
+    "socket.io-redis": "~0.1.0",
+    "redis": "~0.10.1"
+  }
+}
