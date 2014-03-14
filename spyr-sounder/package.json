@@ -1,0 +1,21 @@
+{
+  "name": "spyr-sounder",
+  "version": "0.1.0",
+  "description": "Adds all the sounds for SPYR",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "realtime",
+    "socket.io",
+    "audio"
+  ],
+  "author": "Kevin Roark",
+  "license": "MIT",
+  "dependencies": {
+    "debug": "0.7.4",
+    "redis": "0.10.1",
+    "socket.io-emitter": "0.1.0"
+  }
+}
