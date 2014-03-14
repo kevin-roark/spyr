@@ -20,7 +20,6 @@ setInterval(function() {
     return;
 
   var combination = combineBuffers(curBufs);
-  console.log('blasting some yells');
   io.emit('takeyell', combination);
   redis.set('spyr:takeyell', msgpack.encode(combination));
   curBufs = [];
@@ -35,8 +34,6 @@ sub.on('message', function(channel, bufs){
 
 /* an individual yell set of bufs */
 function takeyell(bufs) {
-  console.log('got a yell');
-  console.log(bufs);
   curBufs.push(bufs);
 }
 
@@ -67,6 +64,8 @@ function combineBuffers(allBufs) {
     }
   }
 
-  return {l: lcom.buffer, r: rcom.buffer, n: allBufs.length};
+  var leftBuf = new Buffer(lcom);
+  var rightBuf = new Buffer(rcom);
+  return {l: leftBuf, r: rightBuf, n: allBufs.length};
 }
 

@@ -31,16 +31,7 @@ io.on('connection', function(socket){
 
   // publish yells to redis
   socket.on('madeyell', function(bufs){
-    console.log('got a yell from browser');
-    console.log(bufs);
     redis.publish('spyr:madeyell', msgpack.encode(bufs));
-  });
-
-  // send yell across the world
-  socket.on('takeyell', function(bufs){
-    console.log('taking a yell in spyr-io');
-    console.log(bufs);
-    broadcast(socket, 'takeyell', bufs);
   });
 
 });

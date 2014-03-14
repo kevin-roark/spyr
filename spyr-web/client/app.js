@@ -6,7 +6,7 @@ var kutility = require('kutility');
 var io = require('socket.io-client');
 
 /* constants */
-var RECORD_TIME = 500;
+var RECORD_TIME = 1000;
 
 /* view stuff */
 function resize() {
@@ -30,13 +30,11 @@ socket.on('disconnect', function() {
 });
 
 socket.on('takeyell', function(bufs) {
-  console.log('taking a yell!!!');
   playBuffers(bufs);
-  //console.log(bufs);
 });
 
 socket.on('connections', function(total) {
-  //console.log('connection total: ' + total);
+  $('.bystander-count').html(total);
 });
 
 /* UI events, etc */
@@ -78,9 +76,6 @@ function stopRecording() {
     var right = bufs[1];
     var audBuf = {l: left.buffer, r: right.buffer};
     //var audBuf = {l: (new Float32Array()).buffer, r: (new Float32Array()).buffer};
-
-    console.log('emitting yell');
-    console.log(audBuf);
 
     socket.emit('madeyell', audBuf);
   });
@@ -147,7 +142,7 @@ function addTriangles(num) {
   function addTriangle() {
     var t = $('<div>').addClass('audio-triangle');
     var color = kutility.randColor();
-    var size = Math.floor(Math.random() * 80) + 20;
+    var size = Math.floor(Math.random() * 60) + 20;
 
     var style = kutility.choice(triangleStyles);
     for (var i = 0; i < style.length - 1; i++) {
