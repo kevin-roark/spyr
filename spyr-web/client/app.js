@@ -22,11 +22,11 @@ resize();
 /* get that socket chillin */
 var socket = io(config.io);
 socket.on('connect', function() {
-  console.log('connected... should make record button active');
+  $('.record-button').fadeIn();
 });
 
 socket.on('disconnect', function() {
-  console.log('disconnected... should make record button inactive');
+  $('.record-button').fadeOut();
 });
 
 socket.on('takeyell', function(bufs) {
