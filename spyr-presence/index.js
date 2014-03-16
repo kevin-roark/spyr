@@ -3,6 +3,8 @@ var redis = require('./redis')();
 var io = require('socket.io-emitter')(redis);
 var interval = process.env.SPYR_CONN_INTERVAL || 5000;
 
+process.title = 'spyr-presence';
+
 console.log('tracking connections');
 console.log('update interval: ' + interval);
 
