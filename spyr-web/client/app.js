@@ -7,6 +7,7 @@ var io = require('socket.io-client');
 
 /* constants */
 var RECORD_TIME = 1000;
+var SAMPLE_RATE = 22050;
 
 /* view stuff */
 function resize() {
@@ -72,13 +73,25 @@ function stopRecording() {
   $('.record-button').removeClass('recording');
   recorder.stop();
   recorder.getBuffer(function(bufs) {
-    var left = bufs[0];
-    var right = bufs[1];
-    var audBuf = {l: left.buffer, r: right.buffer};
-    //var audBuf = {l: (new Float32Array()).buffer, r: (new Float32Array()).buffer};
-
+    var audBuf = downSample(bufs);
     socket.emit('madeyell', audBuf);
   });
+}
+
+function downSample(bufs) {
+  var left = bufs[0];
+  var length = left.length / 2;
+  var sampled = new Float32Array(length);
+
+  var i = 0;
+  var j = 0;
+  var avg;
+  while (i < length) {
+    avg = 0.5 * (left[j++] + left[j++]);
+    sampled[i++] = avg;
+  }
+
+  return sampled.buffer;
 }
 
 function startVisualization() {
@@ -107,20 +120,16 @@ function stopVisualization() {
   $('.recording-line').removeClass('recording');
 }
 
-/* buf.l == left channel PCM, buf.r ==  right channel PCM (arraybuffers) */
+/* buf.buf == a single mono ArrayBuffer of PCM data. buf.n == number of bufs combined here */
 function playBuffers(buf) {
   var ctx = Recorder.audioContext;
-
-  // convert buffers to float 32 here
-  var left = new Float32Array(buf.l);
-  var right = new Float32Array(buf.r);
+  var fbuf = new Float32Array(buf.buf);
 
   var source = ctx.createBufferSource();
-  var combinedBuf = ctx.createBuffer(2, left.length, ctx.sampleRate);
-  combinedBuf.getChannelData(0).set(left);
-  combinedBuf.getChannelData(1).set(right);
+  var audioBuf = ctx.createBuffer(1, fbuf.length, SAMPLE_RATE);
+  audioBuf.getChannelData(0).set(fbuf);
 
-  source.buffer = combinedBuf;
+  source.buffer = audioBuf;
   source.connect(ctx.destination);
   source.start(0);
 

@@ -20,21 +20,23 @@ setInterval(function() {
     return;
 
   var combination = combineBuffers(curBufs);
-  io.emit('takeyell', combination);
-  redis.set('spyr:takeyell', msgpack.encode(combination));
+  if (combination) {
+    io.emit('takeyell', combination);
+    redis.set('spyr:takeyell', msgpack.encode(combination));
+  }
   curBufs = [];
 }, interval);
 
 
 sub.subscribe('spyr:madeyell');
-sub.on('message', function(channel, bufs){
+sub.on('message', function(channel, buf){
   if ('spyr:madeyell' != channel) return;
-  takeyell(msgpack.decode(bufs)); 
+  takeyell(msgpack.decode(buf));
 });
 
 /* an individual yell set of bufs */
-function takeyell(bufs) {
-  curBufs.push(bufs);
+function takeyell(buf) {
+  curBufs.push(buf);
 }
 
 /* takes a list of {l, r} PCM arraybuffers and makes a single arraybuffer with
@@ -45,27 +47,22 @@ function combineBuffers(allBufs) {
 
   // convert from arraybuffer to float32array
   for (var j = 0; j < allBufs.length; j++) {
-    allBufs[j].l = new Float32Array(allBufs[j].l);
-    allBufs[j].r = new Float32Array(allBufs[j].r);
+    allBufs[j] = new Float32Array(allBufs[j]);
   }
 
-  var lcom = new Float32Array(allBufs[0].l.length);
-  var rcom = new Float32Array(allBufs[0].r.length);
+  var com = new Float32Array(allBufs[0].length);
 
   // combine all the datas
   var buf;
-  for (var i = 0; i < lcom.length; i++) {
+  for (var i = 0; i < com.length; i++) {
     for (var j = 0; j < allBufs.length; j++) {
       buf = allBufs[j];
-      if (buf.l.length > j) {
-        lcom[i] += buf.l[i];
-        rcom[i] += buf.r[i];
+      if (buf.length > j) {
+        com[i] += buf[i];
       }
     }
   }
 
-  var leftBuf = new Buffer(lcom);
-  var rightBuf = new Buffer(rcom);
-  return {l: leftBuf, r: rightBuf, n: allBufs.length};
+  var comBuf = new Buffer(com);
+  return {buf: comBuf, n: allBufs.length};
 }
-
