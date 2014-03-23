@@ -3,6 +3,14 @@ spyr
 
 SPYR - special magic yelling room
 
+## How to use
+cd spyr-presence; node index.js &; cd ..; <br>
+cd spyr-sounder; node index.js &; cd ..; <br>
+cd spyr-io; node index.js &; cd ..; <br>
+cd spyr-web; node index.js &; cd..;
+
+Pay attention to the NODE_ENV and SPYR_IO_URL environment variables.
+
 ## Architecture
 Inspired by weplay.io
 
