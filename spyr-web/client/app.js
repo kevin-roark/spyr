@@ -60,7 +60,7 @@ function startRecording() {
   startVisualization();
   setTimeout(function() {
     stopRecording();
-  }, RECORD_TIME);
+  }, RECORD_TIME + 200);
 }
 
 function stopRecording() {
