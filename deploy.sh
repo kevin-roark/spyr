@@ -8,7 +8,7 @@ cd spyr-web; make; cd ..;
 
 forever spyr-presence/index.js &
 
-forever spyr-picspitter/index.js &
+forever spyr-sounder/index.js &
 
 forever spyr-io/index.js &
 
