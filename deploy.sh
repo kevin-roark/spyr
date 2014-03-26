@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export SPYR_IO_URL=http://specialmagicyellingroom:3001
+export SPYR_IO_URL=http://specialmagicyellingroom.com:3001
 
 git pull
 

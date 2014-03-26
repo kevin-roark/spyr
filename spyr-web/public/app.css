@@ -61,6 +61,15 @@ canvas {
     background-color: rgba(255, 20, 255, 0.2);
 }
 
+.touch-to-hear {
+    display: none;
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+    color: rgb(30, 30, 30);
+    text-decoration: underline;
+}
+
 .record-button {
     position: absolute;
     left: 40%;

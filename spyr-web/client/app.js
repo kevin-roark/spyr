@@ -1,7 +1,23 @@
 
 /* dependencies */
+
+var onMobile = false;
+var canHear = true;
+if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+  onMobile = true;
+  canHear = false; 
+}
+
+if (!onMobile) {
+  var sparkle = require('./sparkle');
+} else {
+  $('.recording-controls').css('height', '20px');
+  $('.recording-controls').css('padding', '5px');
+  $('.header').css('font-size', '1.5em');
+  $('.audio-visualizer').css('height', '305px');
+}
+
 var Recorder = require('./recorder');
-var sparkle = require('./sparkle');
 var kutility = require('kutility');
 var io = require('socket.io-client');
 
@@ -23,7 +39,20 @@ resize();
 /* get that socket chillin */
 var socket = io(config.io);
 socket.on('connect', function() {
-  $('.record-button').fadeIn();
+  if (!onMobile)
+    $('.record-button').fadeIn();
+  else {
+    $('.touch-to-hear').fadeIn();
+    document.querySelector('.touch-to-hear').addEventListener('touchstart', function() {
+      var source = Recorder.audioContext.createBufferSource();
+      source.buffer = Recorder.audioContext.createBuffer(1, 1, 22050);
+      source.connect(Recorder.audioContext.destination);
+      source.noteOn(0);
+      canHear = true;
+      $('.touch-to-hear').html("you're inside!!");
+      $('.touch-to-hear').css('text-decoration', 'none');
+    }, false); 
+  }
 });
 
 socket.on('disconnect', function() {
@@ -31,7 +60,8 @@ socket.on('disconnect', function() {
 });
 
 socket.on('takeyell', function(bufs) {
-  playBuffers(bufs);
+  if (canHear)
+    playBuffers(bufs);
 });
 
 socket.on('connections', function(total) {
@@ -49,7 +79,6 @@ $('.record-button').click(function() {
 
 function startRecording() {
   if (!Recorder.recorder) {
-    console.log('recorder no good');
     return;
   }
 
@@ -65,7 +94,6 @@ function startRecording() {
 
 function stopRecording() {
   if (!Recorder.recorder) {
-    console.log('recorder no good');
     return;
   }
 
@@ -131,7 +159,7 @@ function playBuffers(buf) {
 
   source.buffer = audioBuf;
   source.connect(ctx.destination);
-  source.start(0);
+  source.noteOn(0);
 
   addTriangles(buf.n);
 }

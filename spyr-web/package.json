@@ -9,7 +9,7 @@
     "debug": "0.7.4",
     "redis": "0.10.1",
     "mustache-express": "1.0.1",
-    "socket.io-client": "LearnBoost/socket.io-client#ee5291",
+    "socket.io-client": "1.0.0-pre",
     "kutility": "0.1.0"
   },
   "devDependencies": {
