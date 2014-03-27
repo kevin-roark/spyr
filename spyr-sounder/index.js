@@ -58,7 +58,7 @@ function combineBuffers(allBufs) {
     for (var j = 0; j < allBufs.length; j++) {
       buf = allBufs[j];
       if (buf.length > i) {
-        com[i] += (buf[i] / j);
+        com[i] += buf[i] / (allBufs.length);
       }
     }
   }
