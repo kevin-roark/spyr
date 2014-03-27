@@ -5,7 +5,7 @@ var onMobile = false;
 var canHear = true;
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
   onMobile = true;
-  canHear = false; 
+  canHear = false;
 }
 
 if (!onMobile) {
@@ -24,6 +24,7 @@ var io = require('socket.io-client');
 /* constants */
 var RECORD_TIME = 1000;
 var SAMPLE_RATE = 22050;
+var DOWNSAMPLE_RATE = 11025;
 
 /* view stuff */
 function resize() {
@@ -51,7 +52,7 @@ socket.on('connect', function() {
       canHear = true;
       $('.touch-to-hear').html("you're inside!!");
       $('.touch-to-hear').css('text-decoration', 'none');
-    }, false); 
+    }, false);
   }
 });
 
@@ -59,9 +60,11 @@ socket.on('disconnect', function() {
   $('.record-button').fadeOut();
 });
 
-socket.on('takeyell', function(bufs) {
-  if (canHear)
-    playBuffers(bufs);
+socket.on('takeyell', function(buf) {
+  if (canHear) {
+    var upBuf = upSample(buf);
+    playBuffers(upBuf);
+  }
 });
 
 socket.on('connections', function(total) {
@@ -108,18 +111,34 @@ function stopRecording() {
 
 function downSample(bufs) {
   var left = bufs[0];
-  var length = left.length / 2;
+  var length = left.length / 4;
   var sampled = new Float32Array(length);
 
   var i = 0;
   var j = 0;
   var avg;
   while (i < length) {
-    avg = 0.5 * (left[j++] + left[j++]);
+    avg = 0.25 * (left[j++] + left[j++] + left[j++] + left[j++]);
     sampled[i++] = avg;
   }
 
   return sampled.buffer;
+}
+
+function upSample(buf) {
+  var smallSampled = new Float32Array(buf.buf);
+  var length = smallSampled.length * 2;
+  var upSampled = new Float32Array(length);
+
+  for (var i = 0; i < smallSampled.length; i++) {
+    upSampled[i * 2] = smallSampled[i];
+    if (i + 1 < smallSampled.length)
+      upSampled[i * 2 + 1] = (smallSampled[i] + smallSampled[i + 1]);
+  }
+
+  var b = buf;
+  b.buf = upSampled.buffer;
+  return b;
 }
 
 function startVisualization() {

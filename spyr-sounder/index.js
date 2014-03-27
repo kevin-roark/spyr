@@ -16,7 +16,7 @@ console.log('starting sounder. yell interval: ' + interval);
 var curBufs = [];
 
 setInterval(function() {
-  if (!curBufs.length)  
+  if (!curBufs.length)
     return;
 
   var combination = combineBuffers(curBufs);
@@ -57,8 +57,8 @@ function combineBuffers(allBufs) {
   for (var i = 0; i < com.length; i++) {
     for (var j = 0; j < allBufs.length; j++) {
       buf = allBufs[j];
-      if (buf.length > j) {
-        com[i] += buf[i];
+      if (buf.length > i) {
+        com[i] += (buf[i] / j);
       }
     }
   }
