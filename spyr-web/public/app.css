@@ -15,6 +15,7 @@ body {
     -ms-user-select: none;      /* IE 10+ */
     -o-user-select: none;
     user-select: none;
+    background-color: rgba(235, 235, 235, 0.5);
 }
 
 canvas {
